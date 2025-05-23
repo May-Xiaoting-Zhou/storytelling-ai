@@ -1,0 +1,41 @@
+[
+  {
+    "evaluation_id": "eval_001",
+    "story_id": 17,
+    "user_story_id": "us_001",
+    "timestamp": "2025-05-23T11:10:00.000000Z",
+    "evaluator_type": "agent",
+    "is_appropriate": true,
+    "age_appropriateness_score": 0.9,
+    "educational_value_score": 0.7,
+    "engagement_score": 0.8,
+    "coherence_score": 0.85,
+    "creativity_score": 0.75,
+    "feedback_summary": "Good story, well-suited for the target age. Could have a clearer moral.",
+    "detailed_feedback": {
+      "clarity": "The plot was easy to follow.",
+      "character_development": "Characters were likable but could have more depth.",
+      "pacing": "The story flowed well."
+    },
+    "suggested_improvements": ["Consider adding a more explicit moral to the story.", "Develop the main character's motivations further."]
+  },
+  {
+    "evaluation_id": "eval_002",
+    "story_id": 18,
+    "user_story_id": "us_002",
+    "timestamp": "2025-05-23T11:16:00.000000Z",
+    "evaluator_type": "agent",
+    "is_appropriate": true,
+    "age_appropriateness_score": 0.9,
+    "educational_value_score": 0.7,
+    "engagement_score": 0.85,
+    "coherence_score": 0.9,
+    "creativity_score": 0.8,
+    "feedback_summary": "The addition of the new character improved engagement.",
+    "detailed_feedback": {
+      "clarity": "The plot remains clear.",
+      "character_interaction": "The new character integrated well with existing elements."
+    },
+    "suggested_improvements": ["Explore the new character's backstory a bit more."]
+  }
+]

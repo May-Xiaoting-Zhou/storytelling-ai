@@ -1,0 +1,38 @@
+[
+  {
+    "user_story_id": "us_001",
+    "user_id": 0,
+    "story_id": 17,
+    "session_id": 8,
+    "user_prompt": "A story talk about green sea and pink sky",
+    "user_intent": "new_story",
+    "generated_story_text": "In the magical land of Evergreenia, where the trees shimmered in shades of emerald and sapphire, a kind-hearted girl named Lily set off on an adventure... (full story text here)",
+    "previous_user_story_id": null,
+    "timestamp": "2025-05-23T11:08:10.521220Z",
+    "version": 1,
+    "story_elements_used": {
+      "setting": "green sea and pink sky",
+      "characters": [],
+      "plot_points": [],
+      "theme": "adventure"
+    }
+  },
+  {
+    "user_story_id": "us_002",
+    "user_id": 0,
+    "story_id": 18, 
+    "session_id": 8, 
+    "user_prompt": "Add one more character about big tree with singing birds",
+    "user_intent": "change_story",
+    "generated_story_text": "In the magical forest where the trees shimmered in shades of emerald and indigo, and the flowers bloomed... (updated story text here)",
+    "previous_user_story_id": "us_001",
+    "timestamp": "2025-05-23T11:14:55.408292Z",
+    "version": 2,
+    "story_elements_used": {
+      "setting": "green sea and pink sky",
+      "characters": ["big tree with singing birds"],
+      "plot_points": [],
+      "theme": "adventure"
+    }
+  }
+]

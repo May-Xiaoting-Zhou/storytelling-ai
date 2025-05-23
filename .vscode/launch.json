@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Flask Backend",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "backend/app.py",
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1"
+            },
+            "args": [
+                "run",
+                "--no-debugger",
+                "--port",
+                "5001"
+            ],
+            "jinja": true
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome against Frontend",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/frontend",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/src/*"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full Stack: Frontend + Backend",
+            "configurations": ["Python: Flask Backend", "Launch Chrome against Frontend"]
+        }
+    ]
+}

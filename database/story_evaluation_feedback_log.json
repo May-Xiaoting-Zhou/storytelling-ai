@@ -1,0 +1,44 @@
+[
+  {
+    "log_id": "log_001",
+    "evaluation_id": "eval_001",
+    "story_id": 17,
+    "user_story_id": "us_001",
+    "timestamp": "2025-05-23T11:12:00.000000Z",
+    "iteration_number": 1,
+    "agent_feedback_before_user": {
+        "summary": "Initial story generated based on prompt.",
+        "score": 0.8
+    },
+    "user_feedback_received": "I liked it, but can you add a singing tree?",
+    "agent_feedback_after_user": {
+        "summary": "User requested a singing tree. Will attempt to incorporate.",
+        "feasibility_score": 0.9
+    },
+    "changes_made_to_story": "Prepared to add a new character: a big tree with singing birds, based on user feedback leading to version 2 (us_002).",
+    "user_score": null,
+    "model_confidence_score": 0.92,
+    "is_improvement_effective": null
+  },
+  {
+    "log_id": "log_002",
+    "evaluation_id": "eval_002",
+    "story_id": 18,
+    "user_story_id": "us_002",
+    "timestamp": "2025-05-23T11:18:00.000000Z",
+    "iteration_number": 1, 
+    "agent_feedback_before_user": {
+        "summary": "Story updated with singing tree.",
+        "score": 0.85
+    },
+    "user_feedback_received": "That's much better! Thank you!",
+    "agent_feedback_after_user": {
+        "summary": "User satisfied with the changes.",
+        "satisfaction_score": 0.95
+    },
+    "changes_made_to_story": "No further changes requested in this interaction for this story branch.",
+    "user_score": 5, 
+    "model_confidence_score": 0.95,
+    "is_improvement_effective": true
+  }
+]
