@@ -27,7 +27,7 @@ class FeedbackAgent:
             }
         }
     
-    def provide_feedback(self, feedback: str, story: str, original_user_prompt: str, story_elements: Dict) -> str:
+    def provide_feedback(self, feedback: str, story: str, original_user_prompt: str, story_elements: Dict, story_evaluation_id: str) -> str:
         """
         Processes raw feedback into a summarized message suitable for reflection,
         recommendations, or reporting purposes.
@@ -84,7 +84,14 @@ class FeedbackAgent:
         )
 
         feedback_message = response.choices[0].message.content.strip()
-        return feedback_message
+        
+        # Save the feedback to the database
+        feedback_id = self.story_db.add_evaluation_feedback_log(story_evaluation_id, feedback_message)
+
+        return {
+            "feedback_message": feedback_message, 
+            "feedback_id": feedback_id
+            }
 
     def store_interaction(self, prompt: str, story: str, evaluation: Dict) -> None:
         # Store interaction data

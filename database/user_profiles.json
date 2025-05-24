@@ -1,194 +1,136 @@
 {
-  "user_id": 0,
-  "age": null,
-  "gender": null,
-  "created_at": "2025-05-22T21:00:38.491749",
-  "last_interaction": "2025-05-22T21:00:38.491766",
-  "story_history": [],
-  "preferences": {
-    "favorite_characters": [],
-    "favorite_themes": [],
-    "favorite_story_types": [],
-    "reading_level": "beginner",
-    "interaction_style": "guided"
-  },
-  "metrics": {
-    "stories_completed": 0,
-    "total_interactions": 0,
-    "average_engagement_time": 0
-  },
   "0": {
-    "user_id": 0,
-    "age": null,
-    "gender": null,
-    "created_at": "2025-05-23T11:09:06.818007",
-    "last_interaction": "2025-05-23T11:09:06.819022",
+    "user_id": "0",
+    "age": 5,
+    "gender": "female",
+    "created_at": "2025-05-23T13:59:12.532663",
+    "last_interaction": "2025-05-23T18:41:14.372132",
     "story_history": [
       {
-        "timestamp": "2025-05-23T11:09:06.819034",
-        "prompt": "A story talk about green sea and pink sky",
+        "timestamp": "2025-05-23T15:37:30.847415",
+        "prompt": "Tell me a story about blue apple",
         "title": "Untitled Story",
-        "summary": "In the magical land of Evergreenia, where the trees shimmered in shades of emerald and sapphire, a kind-hearted girl named Lily set off on an adventur...",
+        "summary": "Well, Johnny learned so many valuable lessons from his adventure with Blue. He learned about courage and the importance of standing up for what is rig...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T15:42:19.627426",
+        "prompt": "the story you mentioned, it should talk about blue apple",
+        "title": "Untitled Story",
+        "summary": "Once upon a time, in a small town known for its lush orchards, lived a curious boy named Johnny. He loved to explore the orchards, especially the one ...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T15:45:16.413904",
+        "prompt": "tell me another story about happy life for cat and dog in a rainbow",
+        "title": "Untitled Story",
+        "summary": "What a wonderful story that was! The adventures of Felix and Rover truly teach us the importance of spreading happiness and kindness. Now, let's hear ...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T16:04:39.852520",
+        "prompt": "tell me a story about big big big chair and small small small desk",
+        "title": "Untitled Story",
+        "summary": "Title: The Big Chair and the Small Desk Adventure\n\nOnce upon a time, in a world where inanimate objects could giggle, chatter, and prance around, live...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T16:07:11.579523",
+        "prompt": "add one more character, a yellow-green frog",
+        "title": "Untitled Story",
+        "summary": "Title: The Adventure of the Blue Whale, Giant Oak, and the Firefly named Twinkle\n\nIn a world where nature could speak and share its wisdom, lived a gr...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T17:26:38.081889",
+        "prompt": "tell me another story about happy life for cat and dog in a rainbow with fish",
+        "title": "Untitled Story",
+        "summary": "Once upon a time, in a land where the sun always shone vividly and the grass was as soft as cotton candy, there lived a merry little bunny named Bella...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T17:36:59.330191",
+        "prompt": "tell me new story about happy life for cat, dog, frog in a rainbow with fish",
+        "title": "Untitled Story",
+        "summary": "One day, as the sun was setting, a tiny bird named Chirpy flew into their world. Chirpy was lost and couldn't find her way back home. Seeing the bird'...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T17:47:53.608469",
+        "prompt": "tell me a new story about life in sly for yellow cat, white dog, green frog and purple fish",
+        "title": "Untitled Story",
+        "summary": "Once upon a time, in the mystical realm of Sly, there lived four vibrant friends. Sunny was a luminous yellow cat, soft and warm like sunlight. Snowy ...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T17:51:13.138126",
+        "prompt": "remove purple fish from that story",
+        "title": "Untitled Story",
+        "summary": "That's a wonderful revision! Each character remains unique and contributes significantly to the story. Sunny, Snowy, and Ribbit's adventures through S...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T18:03:12.771662",
+        "prompt": "tell me a new story about life in sky for yellow cat, white dog, green frog,  sunflower and purple fish",
+        "title": "Untitled Story",
+        "summary": "What a wonderful story! Now, let's imagine another adventure for our friends in Skyland. \n\nOnce upon a time, the magic of Skyland began to weaken. The...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T18:20:23.380074",
+        "prompt": "tell me a new story about life in sky for yellow cat, white dog, green frog,  sunflower and purple fish",
+        "title": "Untitled Story",
+        "summary": "Once upon a fantastically whimsical time, there existed a kingdom that floated among the fluffy clouds, a magical place known as Skyland. This kingdom...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T18:26:18.586083",
+        "prompt": "remove purple fish from that story",
+        "title": "Untitled Story",
+        "summary": "Once upon a whimsical time in the vibrant kingdom of Skyland, there lived five extraordinary friends who brought joy and color to the azure heavens. S...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T18:34:15.362388",
+        "prompt": "tell me a new story about fly house and fly fish and a girl named \"Lily\"",
+        "title": "Untitled Story",
+        "summary": "Once upon a time, in a town not far from here, lived a sweet little girl named Lily. Lily was known in her town for her imaginative mind and kind hear...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T18:37:35.732704",
+        "prompt": "Add one more character, a boy named \"Nano\"",
+        "title": "Untitled Story",
+        "summary": "Once upon a time, in a place more wonderful than you could ever imagine, lived a little girl named Lily. She was friendly and full of curiosity. She h...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T18:39:10.797745",
+        "prompt": "remove all characters from that story, just keep \"Nano\"",
+        "title": "Untitled Story",
+        "summary": "Once upon a time, in a magical land of dreams and wonders, there lived a little boy named Nano. Nano was a kind-hearted boy with a curious mind, livin...",
+        "user_feedback": null
+      },
+      {
+        "timestamp": "2025-05-23T18:41:14.372155",
+        "prompt": "How about Nano's father?",
+        "title": "Untitled Story",
+        "summary": "Once upon a time, there was a little boy named Nano. Nano lived in a fantastic place filled with towering trees, sparkling rivers, and beautiful birds...",
         "user_feedback": null
       }
     ],
     "preferences": {
       "favorite_characters": [],
-      "favorite_themes": [],
+      "favorite_themes": [
+        "scary"
+      ],
       "favorite_story_types": [],
       "reading_level": "beginner",
       "interaction_style": "guided"
     },
     "metrics": {
-      "stories_completed": 1,
-      "total_interactions": 1,
-      "average_engagement_time": 0
-    }
-  },
-  "guest_user": {
-    "user_id": "guest_user",
-    "age": null,
-    "gender": null,
-    "created_at": "2025-05-22T21:18:27.526565",
-    "last_interaction": "2025-05-23T11:14:55.408284",
-    "story_history": [
-      {
-        "timestamp": "2025-05-22T21:19:00.472160",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "**Introduction:** In a magical place called Evergreen Valley, there was a young adventurer named Lil...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T21:29:54.321419",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "Once upon a time, in the enchanting Whispering Woods, where leaves shimmered like emerald jewels and...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T21:49:03.827155",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "Title: Lily and the Enchanted Whispering Forest\n\nIn a magical place known as Evergreen Valley, a cur...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T21:50:42.815304",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "In a magical forest filled with vibrant colors and whimsical shapes, there lived a courageous girl n...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T21:52:28.289179",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "In the Banana Kingdom, Lily the Brave loved exploring the forests bursting with vibrant colors and s...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T22:08:42.331044",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "Once upon a time, in the magical forest of shimmering emerald leaves and golden sunlight, lived a co...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T22:47:37.470014",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "In the Banana Kingdom, where the trees shimmered with hues of gold and green, Lily, a girl with a he...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T22:50:55.089424",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "**Introduction:**\nIn a magical forest, bathed in the soft glow of shimmering fireflies, lived Willow...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T22:54:20.984275",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "Once upon a time in the Banana Kingdom, where the trees were as yellow as the sun and the sky was a ...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T23:03:03.833313",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "Once upon a time, in the Banana Kingdom, where the trees shimmered with golden leaves and the sky wa...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T23:07:22.445055",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "Once upon a time, in the magical forest shimmering with fireflies like tiny lanterns, Luna, a fearle...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T23:12:16.054666",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "In a magical corner of Banana Kingdom, where the trees were as tall as towers and the flowers sparkl...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T23:13:43.899690",
-        "prompt": "tell me story about banana",
-        "title": "Untitled Story",
-        "summary": "In a magical place called Evergreenia, where emerald leaves danced in the breeze and the sunlight pa...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-22T23:27:00.190504",
-        "prompt": "tell me story about cat, pen, banana and apple",
-        "title": "Untitled Story",
-        "summary": "Once upon a time in the magical land of Evergreenia, where the trees shimmered with emerald leaves a...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-23T00:16:52.168983",
-        "prompt": "tell me story about star, banana and subway",
-        "title": "Untitled Story",
-        "summary": "Once upon a time, in a city where the stars twinkled brightly above, resided a girl named Lily the B...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-23T00:18:44.926012",
-        "prompt": "A story related a cat and purple apple and fly fish just let me be happier",
-        "title": "Untitled Story",
-        "summary": "Once upon a time, in the magical land of Evergreenia, there was a brave and curious cat named Luna. ...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-23T11:08:10.521220",
-        "prompt": "A story talk about green sea and pink sky",
-        "title": "Untitled Story",
-        "summary": "In the magical land of Evergreenia, where the trees shimmered in shades of emerald and sapphire, a k...",
-        "user_feedback": null
-      },
-      {
-        "timestamp": "2025-05-23T11:14:55.408292",
-        "prompt": "Add one more character about big tree with singing birds",
-        "title": "Untitled Story",
-        "summary": "In the magical forest where the trees shimmered in shades of emerald and indigo, and the flowers blo...",
-        "user_feedback": null
-      }
-    ],
-    "preferences": {
-      "favorite_characters": [],
-      "favorite_themes": [],
-      "favorite_story_types": [],
-      "reading_level": "beginner",
-      "interaction_style": "guided"
-    },
-    "metrics": {
-      "stories_completed": 18,
-      "total_interactions": 18,
+      "stories_completed": 16,
+      "total_interactions": 17,
       "average_engagement_time": 0
     }
   }

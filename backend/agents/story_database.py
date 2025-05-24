@@ -9,6 +9,10 @@ class StoryDatabase:
         self.db_path = Path('database')
         self.stories_path = self.db_path / 'stories.json'
         self.interactions_path = self.db_path / 'interactions.json'
+        self.conversations_path = self.db_path / 'conversations.json'
+        self.user_stories_path = self.db_path / 'user_stories.json'
+        self.story_evaluations_path = self.db_path / 'story_evaluations.json'
+        self.story_evaluation_feedback_log_path = self.db_path / 'story_evaluation_feedback_log.json' # Added this line
         self._initialize_database()
 
     def _initialize_database(self) -> None:
@@ -23,6 +27,22 @@ class StoryDatabase:
         if not self.interactions_path.exists():
             self._save_json(self.interactions_path, [])
 
+        # Initialize conversations file
+        if not self.conversations_path.exists():
+            self._save_json(self.conversations_path, [])
+
+        # Initialize user_stories file
+        if not self.user_stories_path.exists():
+            self._save_json(self.user_stories_path, [])
+
+        # Initialize story_evaluations file
+        if not self.story_evaluations_path.exists():
+            self._save_json(self.story_evaluations_path, [])
+
+        # Initialize story_evaluation_feedback_log file
+        if not self.story_evaluation_feedback_log_path.exists(): # Added this block
+            self._save_json(self.story_evaluation_feedback_log_path, [])
+
     def _load_json(self, path: Path) -> List:
         try:
             with open(path, 'r') as f:
@@ -33,6 +53,69 @@ class StoryDatabase:
     def _save_json(self, path: Path, data: List) -> None:
         with open(path, 'w') as f:
             json.dump(data, f, indent=2)
+
+    def add_story(self, prompt: str, story_text: str, metadata: Dict) -> int:
+        stories = self._load_json(self.stories_path)
+        
+        story_id = len(stories) + 1
+        story_data = {
+            'id': story_id,
+            'prompt': prompt,
+            'story': story_text,
+            'timestamp': datetime.now().isoformat(),
+            'metadata': metadata
+        }
+        
+        stories.append(story_data)
+        self._save_json(self.stories_path, stories)
+        return story_id
+
+    def add_user_story(self, prompt: str, user_id: str, story_id: int, intent: str) -> int:
+        user_stories = self._load_json(self.user_stories_path)
+        
+        user_story_id = len(user_stories) + 1
+        user_story_data = {
+            'id': user_story_id,
+            'user_id': user_id,
+            'story_id': story_id,
+            'prompt': prompt,
+            'intent': intent,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        user_stories.append(user_story_data)
+        self._save_json(self.user_stories_path, user_stories)
+        return user_story_id
+
+    def add_evaluation(self, user_story_id: int, evaluation: Dict) -> int:
+        evaluations = self._load_json(self.story_evaluations_path)
+        
+        evaluation_id = len(evaluations) + 1
+        evaluation_data = {
+            'id': evaluation_id,
+            'user_story_id': user_story_id,
+            'evaluations': evaluation, # Storing the passed evaluation dictionary directly
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        evaluations.append(evaluation_data)
+        self._save_json(self.story_evaluations_path, evaluations)
+        return evaluation_id
+
+    def add_evaluation_feedback_log(self, story_evaluation_id: int, feedback_message: str) -> int:
+        feedback_logs = self._load_json(self.story_evaluation_feedback_log_path)
+        
+        feedback_id = len(feedback_logs) + 1
+        feedback_data = {
+            'id': feedback_id,
+            'story_evaluations_id': story_evaluation_id,
+            'feedbacks': feedback_message, # Assuming feedback_message is a string
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        feedback_logs.append(feedback_data)
+        self._save_json(self.story_evaluation_feedback_log_path, feedback_logs)
+        return feedback_id
 
     def store_story(self, prompt: str, story: str) -> None:
         stories = self._load_json(self.stories_path)
@@ -76,6 +159,10 @@ class StoryDatabase:
     def get_user_interactions(self, user_id: str) -> List[Dict]:
         interactions = self._load_json(self.interactions_path)
         return [i for i in interactions if i.get('user_id') == user_id]
+
+    def get_conversations_by_user_id(self, user_id: str) -> List[Dict]: # Added this method
+        conversations = self._load_json(self.conversations_path)
+        return [c for c in conversations if c.get('user_id') == user_id]
 
     def _extract_metadata(self, story: str) -> Dict:
         # Extract key information from the story

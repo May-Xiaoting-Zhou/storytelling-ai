@@ -1,3 +1,4 @@
+from dis import Instruction
 from flask import Flask, request, jsonify, send_from_directory # Added send_from_directory
 from flask_cors import CORS
 import os # Added os
@@ -5,12 +6,12 @@ import traceback # Added for error logging
 import json # Added for potential direct JSON operations, though agent handles it here
 import collections # Added for defaultdict
 
-from агенты.storyteller import StorytellerAgent
-from агенты.judge import JudgeAgent
-from агенты.feedback import FeedbackAgent
-from агенты.intent_analyzer import IntentAnalyzerAgent
-from агенты.conversation_manager import ConversationManager
-from config import ITERATION_LIMIT # Import the new configuration
+from agents.storyteller import StorytellerAgent
+from agents.judge import JudgeAgent
+from agents.feedback import FeedbackAgent
+from agents.intent_analyzer import IntentAnalyzer
+from agents.conversation_manager import ConversationManager
+from config import EVALUATION_LIMIT # Import the new configuration
 
 app = Flask(__name__, static_folder='../frontend/dist')
 # Consider a more specific CORS setup for debugging if the general one causes issues
@@ -19,7 +20,7 @@ CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
 storyteller = StorytellerAgent()
 judge = JudgeAgent()
 feedback = FeedbackAgent()
-intent_analyzer = IntentAnalyzerAgent()
+intent_analyzer = IntentAnalyzer()
 conversation_manager = ConversationManager() # Instantiate ConversationManager
 
 @app.route('/api/story', methods=['POST'])
@@ -48,17 +49,14 @@ def generate_story():
         if user_id_str == 'guest_user':
             # user_id_str = 0
             user_id_str = storyteller.memory_personalization.get_next_user_id(current_user_profiles)
-            user_id_str = 0 # for testing
+            user_id_str = '0' # for testing
 
         # check if user_id in last record of conversations.json
         last_conversation = conversation_manager.get_last_conversation(user_id_str)
         if last_conversation:
             last_message = last_conversation['messages'][-1]
             if last_message['role'] == 'agent' and last_message['status'] == 'new_user_profiling_required':
-                # use original_user_prompt to update user profile
-                user_profiles = storyteller.memory_personalization._load_json(user_profiles_path)
-                user_profiles[user_id_str] = storyteller.memory_personalization.gather_user_preferences(user_id_str, original_user_prompt)
-                storyteller.memory_personalization._save_json(user_profiles_path, user_profiles)
+                storyteller.memory_personalization.gather_user_preferences(user_id_str, original_user_prompt)
 
                 msg = "Awowesome! Thank you for sharing that with me. I'm ready to tell you a story now. What kind of story would you like to hear?"
                 user_message = {"role": "user", "content": original_user_prompt}
@@ -78,18 +76,18 @@ def generate_story():
             # Check if user_id is new (not in user_profiles)
             is_new_user_for_profiling = user_id_str not in current_user_profiles
             if is_new_user_for_profiling:
-                user_profiles = storyteller.memory_personalization.get_user_profile(user_id_str)
-                storyteller.memory_personalization._save_json(user_profiles_path, user_profiles)
 
+                storyteller.memory_personalization.get_user_profile(user_id_str)
+        
                 msg = "Welcome! To help me tell you the best stories, please tell me a bit about yourself. For example, what is your age, gender (optional), favorite characters or types of animals, favorite kinds of stories (e.g., adventure, funny, magical), and preferred story style (e.g., simple, detailed)?"
                 user_message = {"role": "user", "content": original_user_prompt}
                 agent_message = {"role": "agent", "content": msg, 'status': 'new_user_profiling_required'}
-
+        
                 conversation_manager.add_conversation(
                         user_id=user_id_str,
                         messages=[user_message, agent_message]
                     )
-
+        
                 # This is the user's first interaction requiring preference gathering.
                 return jsonify({
                     'status': 'new_user_profiling_required',
@@ -100,11 +98,11 @@ def generate_story():
 
         # If user exists, proceed with normal story generation flow.
         # 1. Analyze intent
-        intent_result = intent_analyzer.classify_prompt(prompt)
+        intent_result = intent_analyzer.classify_prompt(prompt, user_id_str)
 
         # 2. Get a specific response message if the intent doesn't lead to new story generation
         # Stop, clarify, or redirect to a specific intent
-        if intent_result['action'] != 'proceed':
+        if intent_result['action'] != 'continue':
             # If IntentAnalyzerAgent provides a direct response (e.g., for questions, updates)
             user_message = {"role": "user", "content": original_user_prompt}
             agent_message = {"role": "agent", "content": intent_result['message'], 'status': intent_result['action']}
@@ -129,47 +127,48 @@ def generate_story():
                 prompt=original_user_prompt, # Use the original user prompt string
                 user_id=user_id_str, # Pass user_id_str (which can be 'guest_user')
                 story_elements=story_elements, 
-                intent=current_intent
+                intent=current_intent,
+                instruction=intent_result['context']
             )
 
 
-            # Iterative improvement loop
-            # TODO: Implement a more sophisticated stopping condition
-            # For now, limit the number of iterations
-            # LIMIT_LOOP = 3 # TODO: For now, limit the number of iterations
-            for _ in range(ITERATION_LIMIT): # Use the configured limit
-                evaluation = judge.evaluate_story(user_id, story_elements, generated_story_text)
-                logger.debug(f"Iteration evaluation: {evaluation}")
-                evaluation = {} # Initialize evaluation in case the loop doesn't run
-
-            # 3. Evaluate story quality
-            # Ensure story_details is not None and contains 'story'
+            # EVALUATION_LIMIT = 3 # TODO: For now, limit the number of iterations
             if story_details and 'story' in story_details:
-                evaluation = judge.evaluate_story(story_details['story'], original_user_prompt, story_elements)
-                stories_lst = collections.defaultdict(list)
                 improved_story = story_details['story']
-                while LIMIT_LOOP >= 0 and evaluation['score'] < 7:
-                    # 4. Provide feedback if needed
-                    feedback_message = feedback.provide_feedback(evaluation['feedback'], improved_story, original_user_prompt, story_elements)
+                stories_lst = collections.defaultdict(list)
+                user_story_id = story_details['story_id']
+                for _ in range(EVALUATION_LIMIT): # Use the configured limit
+                    evaluation_ressult = judge.evaluate_story(improved_story, original_user_prompt, story_elements, user_story_id)
+                    evaluation = evaluation_ressult['evaluation']
+                    evaluation_id = evaluation_ressult['evaluation_id']
 
-                    story_elements = intent_analyzer.update_story_elements( # Changed to _update_story_elements
-                        improved_story,              # improved story text
-                        story_elements,              # Extracted story elements
-                        original_user_prompt,        # Original user prompt
-                        feedback_message,            # Summarized feedback
-                        evaluation                   # Full evaluation from JudgeAgent
-                    )
+                    if evaluation['score'] >= 7:
+                        break
+                    else:
+                        feedback_result = feedback.provide_feedback(evaluation['feedback'], improved_story, original_user_prompt, story_elements, evaluation_id)
+                        feedback_message = feedback_result['feedback_message']
+                        feedback_id = feedback_result['feedback_id']
 
-                    # Ensure storyteller.generate_story_from_feedback is correctly called
-                    improved_story = storyteller.generate_story_from_feedback(
-                        improved_story,              # improved story text
-                        story_elements,              # Extracted story elements
-                        original_user_prompt,        # Original user prompt
-                        feedback_message,            # Summarized feedback
-                        evaluation                   # Full evaluation from JudgeAgent
-                    )
-                    
-                    if LIMIT_LOOP >= 0: # Re-evaluate if not out of loops
+                        # Ensure intent_analyzer.update_story_elements is correctly called
+                        story_elements = intent_analyzer.get_story_elements_for_regeneration_from_evaluation( 
+                            user_id_str,
+                            user_story_id, 
+                            evaluation,
+                            feedback
+                        )
+
+                        # Ensure storyteller.generate_story_from_feedback is correctly called
+                        improved_story = storyteller.regenerate_story(
+                            original_user_prompt,        # Original user prompt
+                            improved_story,              # improved story text
+                            story_elements,              # Extracted story elements
+                            evaluation ,                  # Full evaluation from JudgeAgent
+                            feedback_message,            # Summarized feedback
+                            user_id=user_id_str          # User ID
+                        )
+
+                        logger.debug(f"Iteration improving: {evaluation_id}, {evaluation_ressult}, {feedback_id}, {feedback_message}, {improved_story}")
+
                         print(f"evaluation: {evaluation}") # Debug print
                         print(f"feedback_message: {feedback_message}") # Debug print
                         print(f"story_elements: {story_elements}") # Debug print
@@ -186,15 +185,12 @@ def generate_story():
 
                         evaluation = judge.evaluate_story(improved_story, original_user_prompt, story_elements)
 
-                    LIMIT_LOOP -= 1
-
                 # Select the first story from the best stories
                 story_details['story'] = improved_story
             else:
                 # Handle cases where story_details might be unexpectedly None or malformed
                 app.logger.error(f"Initial story_details is None or missing 'story' key for prompt: {original_user_prompt}")
                 return jsonify({'error': 'Failed to generate initial story content'}), 500
-
 
             # Record interaction if user_id is available
             if user_id and story_details and 'story' in story_details:

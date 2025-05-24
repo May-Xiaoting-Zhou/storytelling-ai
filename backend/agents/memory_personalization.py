@@ -294,56 +294,71 @@ class MemoryPersonalizationAgent:
         }
     
     def personalize_story_prompt(self, base_prompt: str, user_id: str) -> str:
-        """Personalize a story prompt based on user preferences"""
+        """Personalize a story prompt based on user preferences to generate a RAG prompt."""
         user_profile = self.get_user_profile(user_id)
-        preferences = user_profile['preferences']
+        if not user_profile:
+            # Fallback if user profile doesn't exist or couldn't be loaded
+            return f"Base Prompt: {base_prompt}\n\nUser Profile: Not available. Please generate a story based on the base prompt."
+
+        preferences = user_profile.get('preferences', {})
         age = user_profile.get('age')
         gender = user_profile.get('gender')
+        story_history = user_profile.get('story_history', [])
+
+        # Construct the RAG prompt
+        rag_prompt_parts = [
+            "You are a creative storyteller AI. Your task is to generate a compelling and age-appropriate story.",
+            "Please use the following base prompt and user profile information to tailor the story.",
+            "--- BASE PROMPT ---",
+            base_prompt,
+            "--- USER PROFILE ---"
+        ]
+
+        if age is not None:
+            rag_prompt_parts.append(f"- Target Age: {age}")
+        if gender:
+            rag_prompt_parts.append(f"- User Gender: {gender}")
         
-        # If user has no history, return the base prompt
-        # Consider if age/gender alone should influence this decision or if preferences are key
-        if not user_profile['story_history'] and not any(preferences.values()) and age is None and gender is None:
-            return base_prompt
+        fav_chars = preferences.get('favorite_characters', [])
+        if fav_chars:
+            rag_prompt_parts.append(f"- Favorite Characters to consider including or taking inspiration from: {', '.join(fav_chars)}")
         
-        # Create a personalization prompt
-        personalization_context = f"""
-        User profile:
-        - Age: {age if age is not None else 'Not specified'}
-        - Gender: {gender if gender else 'Not specified'}
-        - Favorite characters: {', '.join(preferences.get('favorite_characters', [])) if preferences.get('favorite_characters') else 'None identified yet'}
-        - Favorite themes: {', '.join(preferences.get('favorite_themes', [])) if preferences.get('favorite_themes') else 'None identified yet'}
-        - Favorite story types: {', '.join(preferences.get('favorite_story_types', [])) if preferences.get('favorite_story_types') else 'None identified yet'}
-        - Reading level: {preferences.get('reading_level', 'beginner')}
-        - Interaction style: {preferences.get('interaction_style', 'guided')}
+        fav_themes = preferences.get('favorite_themes', [])
+        if fav_themes:
+            rag_prompt_parts.append(f"- Favorite Themes to weave into the story: {', '.join(fav_themes)}")
+
+        fav_story_types = preferences.get('favorite_story_types', [])
+        if fav_story_types:
+            rag_prompt_parts.append(f"- Preferred Story Types/Genres: {', '.join(fav_story_types)}")
+
+        reading_level = preferences.get('reading_level')
+        if reading_level:
+            rag_prompt_parts.append(f"- Preferred Reading Level: {reading_level} (e.g., simple vocabulary, complex sentences)")
+
+        interaction_style = preferences.get('interaction_style')
+        if interaction_style:
+            rag_prompt_parts.append(f"- Preferred Interaction Style for story (if applicable): {interaction_style}")
+
+        if story_history:
+            rag_prompt_parts.append("--- RECENT STORY HISTORY (for context, avoid direct repetition unless a sequel is implied by the base_prompt) ---")
+            for i, history_item in enumerate(story_history[-3:], 1):
+                # Assuming history_item is a string or has a 'title' or 'summary' attribute
+                if isinstance(history_item, dict) and 'prompt' in history_item:
+                    rag_prompt_parts.append(f"  {i}. Previous Prompt: {history_item['prompt'][:100]}...")
+                elif isinstance(history_item, str):
+                    rag_prompt_parts.append(f"  {i}. {history_item[:150]}...")
+                # Add more sophisticated history formatting if needed
+        else:
+            rag_prompt_parts.append("- No significant story history available for this user.")
         
-        Recent story history:
-        {user_profile['story_history'][-3:] if len(user_profile['story_history']) >= 3 else user_profile['story_history']}
-        """
+        rag_prompt_parts.extend([
+            "--- STORY GENERATION INSTRUCTIONS ---",
+            "Based on all the above, generate a new, original story that aligns with the base prompt and incorporates the user's preferences.",
+            "Ensure the story is engaging, coherent, and suitable for the user's age and reading level.",
+            "Focus on creating a positive and imaginative experience."
+        ])
         
-        prompt = f"""
-        Personalize this story prompt based on the user's preferences and history:
-        
-        Base prompt: {base_prompt}
-        
-        {personalization_context}
-        
-        Create an enhanced version of the base prompt that incorporates elements the user enjoys
-        while still maintaining the core request. The personalized prompt should be suitable for
-        generating a children's story (ages 5-10).
-        """
-        
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are an expert in personalizing children's stories based on user preferences."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=500
-        )
-        
-        personalized_prompt = response.choices[0].message.content
-        return personalized_prompt
+        return "\n\n".join(rag_prompt_parts)
     
     def record_story_interaction(self, user_id: str, story_data: Dict, interaction_time: int) -> None:
         """Record a story interaction in the user's profile"""

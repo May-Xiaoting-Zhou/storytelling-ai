@@ -28,7 +28,7 @@ class StorytellerAgent:
             'characters': ['children', 'animals', 'magical creatures', 'family members', 'friends']
         }
 
-    def _get_llm_story_prompt(self, user_prompt_str: str, story_elements: Dict, user_id: Optional[str] = None, last_story_text: Optional[str] = None, intent: str = "new_story") -> str:
+    def _get_llm_story_prompt(self, user_prompt_str: str, story_elements: Dict, user_id: Optional[str] = None, last_story_text: Optional[str] = None, intent: str = "new_story", instruction: str = "") -> str:
         # Create a detailed prompt for the LLM
         # This internal method will be more flexible to handle different intents
         
@@ -75,13 +75,13 @@ Story structure:
         elif intent in ["change_story", "update_story"]:
             if not last_story_text:
                 # Fallback to new story if last story is not available
-                prompt_parts.append(f"The user wants to change a story, but the previous story is unavailable. Please generate a new story based on: {user_prompt_str}")
+                prompt_parts.append(f"The user wants to change a story, but the previous story is unavailable. Please generate a new story based on: {user_prompt_str} and instruction {instruction}")
             else:
                 prompt_parts.append(f"The user wants to modify a previous story. Here is the original story:\n---BEGIN ORIGINAL STORY---\n{last_story_text}\n---END ORIGINAL STORY---")
-                modification_instruction = "Please revise the story significantly based on the user's new request."
+                modification_instruction = f"Please revise the story significantly based on the user's new request and instruction {instruction}."
                 if intent == "update_story":
                     modification_instruction = "Please update the story strictly following the user's new request, focusing on incorporating their specific changes."
-                prompt_parts.append(f"User's new request for changes: '{user_prompt_str}'. {modification_instruction}")
+                prompt_parts.append(f"User's new request for changes: '{instruction}'. {modification_instruction}")
 
         prompt_parts.append(story_guidelines)
         
@@ -94,14 +94,7 @@ Story structure:
             
         return final_prompt
 
-    # def _format_similar_stories(self, stories: List[Dict]) -> str: # Keep if RAG is still used
-    #     // ... existing code ...
-
-    # generate_story_from_feedback can remain as is, or its logic integrated if requirements overlap significantly.
-    # For now, let's assume it's separate.
-
-    # This is the new merged function
-    def generate_story(self, prompt: str, user_id: Optional[str], story_elements: Dict, intent: str) -> Dict:
+    def generate_story(self, prompt: str, user_id: Optional[str], story_elements: Dict, intent: str, instruction: str) -> Dict:
         last_story_text = None
         if intent in ["change_story", "update_story"] and user_id:
             # Fetch last story for the user. 
@@ -127,7 +120,8 @@ Story structure:
             story_elements=story_elements, 
             user_id=user_id, 
             last_story_text=last_story_text, 
-            intent=intent
+            intent=intent,
+            instruction=instruction
         )
 
         # Call OpenAI LLM
@@ -154,13 +148,16 @@ Story structure:
             'moral': 'A gentle life lesson was woven into the story.' # Placeholder
         }
         
-        # Save the story (optional, if app.py doesn't handle all DB interactions)
-        # story_id = self.story_db.add_story(prompt, generated_story_text, story_metadata)
+        # Save the story
+        story_id = self.story_db.add_story(prompt, generated_story_text, story_metadata)
+        if user_id:
+            user_story_id = self.story_db.add_user_story(prompt, user_id, story_id, intent)
 
         return {
             'story': generated_story_text,
             'metadata': story_metadata,
-            # 'id': story_id # if saved here
+            'story_id': story_id,
+            'user_story_id': user_story_id
         }
 
         # Default age_range, can be overridden if passed as a parameter or set in class
@@ -273,10 +270,30 @@ Story structure:
             'age_range': age_range
         }
 
-    def regenerate_story(self, prompt: str, feedback: str, user_id: Optional[str] = None, age_range: str = '5-10', interactive: bool = False) -> Dict:
+    def regenerate_story(self, prompt: str, old_story: str, story_elements: Dict, evaluation: str, feedback: str, user_id: Optional[str], intent: str) -> Dict:
         # Regenerate story incorporating feedback
-        updated_prompt = f"{prompt}\n\nPlease address this feedback: {feedback}"
-        return self.generate_story(updated_prompt, user_id, age_range, interactive)
+        # Original prompt for context (can be part of the initial 'prompt' variable or constructed here)
+        # initial_story_prompt = prompt 
+
+        # Construct a more detailed prompt for regeneration
+        updated_prompt = (
+            f"Please revise the following story based on the user's intent, evaluation, and feedback.\n\n"
+            f"User's Original Intent: {intent}\n\n"
+            f"Original Story:\n{old_story}\n\n"
+            f"Evaluation of the Original Story: {evaluation}\n\n"
+            f"Specific Feedback for Improvement: {feedback}\n\n"
+            f"Rewrite the story, ensuring it aligns with the original intent while addressing the evaluation and incorporating the feedback. "
+            f"The story should still be based on the initial prompt: {prompt}"
+        )
+
+        # If you have specific story_elements to maintain or incorporate, you can add them here:
+        # if story_elements:
+        #     elements_text = ", ".join([f'{k}: {v}' for k, v in story_elements.items()])
+        #     updated_prompt += f"\n\nRemember to include these elements: {elements_text}."
+
+        # Call to the language model
+        # new_story_text = self.llm.generate(updated_prompt)
+        return self.generate_story(updated_prompt, user_id, story_elements, intent)
     
     def continue_interactive_story(self, user_choice: str) -> Dict:
         """Continue an interactive story based on user's choice"""

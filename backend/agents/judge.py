@@ -1,12 +1,14 @@
 import openai
 from typing import Dict
 from config import OPENAI_API_KEY
-
+from agents.story_database import StoryDatabase
 # Configure OpenAI API key
 openai.api_key = OPENAI_API_KEY
 
 class JudgeAgent:
     def __init__(self):
+        # Initialize all agent components
+        self.story_db = StoryDatabase()
         self.evaluation_criteria = {
             'age_appropriate': {
                 'language_complexity': 'Simple words and sentence structures',
@@ -27,65 +29,81 @@ class JudgeAgent:
 
     def _get_evaluation_prompt(self, story: str, original_user_prompt: str, story_elements: Dict) -> str:
         return f"""
-        Evaluate the following children's bedtime story designed for readers aged 5 to 10.
-        The story was generated based on the user's original prompt and extracted story elements.
+    You are an expert in children's literature and education. Your task is to evaluate a bedtime story intended for children aged 5 to 10, based on the following:
 
-        Original User Prompt:
-        {original_user_prompt}
+    1. The original user prompt that inspired the story
+    2. The extracted key story elements
+    3. The generated story text
 
-        Extracted Story Elements:
-        Characters: {story_elements.get('characters', 'N/A')}
-        Setting: {story_elements.get('setting', 'N/A')}
-        Conflict: {story_elements.get('conflict', 'N/A')}
-        Plot Idea: {story_elements.get('plot_idea', 'N/A')}
-        Theme: {story_elements.get('theme', 'N/A')}
+    Please assess the story thoroughly according to the criteria below. Your evaluation should be clear, specific, and reference concrete examples from the story where applicable.
 
-        Generated Story:
-        {story}
+    ---
 
-        Please assess the story using the criteria below. Provide specific feedback for each aspect, including examples or reasoning where relevant:
+    📝 Original User Prompt:
+    {original_user_prompt}
 
-        1. Correlation with User Input:
-        - How well does the story align with the original user prompt?
-        - Does the story effectively incorporate the extracted story elements (characters, setting, theme, etc.)?
+    🧩 Extracted Story Elements:
+    - Characters: {story_elements.get('characters', 'N/A')}
+    - Setting: {story_elements.get('setting', 'N/A')}
+    - Conflict: {story_elements.get('conflict', 'N/A')}
+    - Plot Idea: {story_elements.get('plot_idea', 'N/A')}
+    - Theme: {story_elements.get('theme', 'N/A')}
 
-        2. Age Appropriateness:
-        - Are the themes, language, and concepts suitable for children aged 5–10?
+    📖 Generated Story:
+    {story}
 
-        3. Story Structure and Completeness:
-        - Does the story have a clear beginning, middle, and end?
-        - Is the conflict (if any) resolved in a gentle and satisfying way?
+    ---
 
-        4. Length and Pacing:
-        - Is the story an appropriate length to maintain attention (3–8 minutes), at most 300 words?
-        - Does the pacing feel too slow or too rushed?
+    🔍 Evaluation Criteria:
 
-        5. Language and Clarity:
-        - Are vocabulary and sentence structure age-appropriate?
-        - Is the story easy to follow and understand?
+    1. 🎯 Correlation with User Input
+    - Does the story clearly reflect the prompt and incorporate key elements like characters, setting, and theme?
+    - Are proper names, colors, dates, locations, or other keywords from the user input clearly represented?
 
-        6. Educational and Emotional Value:
-        - Does the story promote positive values such as kindness, empathy, or perseverance?
-        - Are there opportunities for learning or emotional growth?
+    2. 👶 Age Appropriateness (5–10 years)
+    - Are the themes, concepts, and vocabulary suitable for this age group?
+    - Does the story avoid inappropriate content (violence, fear, adult themes)?
 
-        7. Engagement and Imagination:
-        - Is the story engaging and likely to spark curiosity or imagination?
-        - Does it capture the attention of both younger (5–7) and older (8–10) children?
+    3. 🧱 Structure and Completeness
+    - Does the story have a clear beginning, middle, and end?
+    - Is the conflict (if present) gently and satisfyingly resolved?
+    - Does the story end fully (no unfinished sentences or abrupt cutoffs)?
 
-        8. Emotional Tone and Bedtime Suitability:
-        - Does the story end on a calming or comforting note?
-        - Is it appropriate for bedtime reading (non-frightening, relaxing)?
+    4. ⏱️ Length and Pacing
+    - Is the length suitable for 3–8 minutes of reading (~300 words)?
+    - Does the pacing keep the reader engaged without feeling rushed?
 
-        9. Visual Support (if applicable):
-        - If the story includes or implies illustrations, are they age-appropriate and supportive of the text?
+    5. 🗣️ Language and Clarity
+    - Is the vocabulary accessible to young readers?
+    - Are the sentences easy to follow and age-appropriate?
 
-        10. Suggestions for Improvement:
-        - Provide specific, constructive feedback on how the story could be enhanced for this age group, considering its alignment with the user's input and general storytelling quality.
+    6. 🌱 Educational and Emotional Value
+    - Does the story offer moral lessons or opportunities for reflection?
+    - Does it promote positive traits like kindness, courage, empathy?
 
-        Finally, include an overall assessment: Is this story suitable as a bedtime story for children aged 5–10, considering all the above points, especially its relevance to the user's request? Why or why not?
-        """
+    7. 🌈 Engagement and Imagination
+    - Is the story interesting, surprising, or imaginative?
+    - Will it engage both younger (5–7) and older (8–10) readers?
 
-    def evaluate_story(self, story: str, original_user_prompt: str, story_elements: Dict) -> Dict:
+    8. 🌙 Bedtime Suitability
+    - Is the story calming, positive, and appropriate to read before sleep?
+
+    9. 🖼️ Visual Support (if illustrations are implied)
+    - Would illustrations enhance understanding and engagement?
+    - Are visuals implied appropriate for the story and age?
+
+    10. 🔧 Suggestions for Improvement
+    - Provide constructive feedback on how the story can be improved, especially for children in this age group.
+
+    ---
+
+    📌 Finally:
+    Please conclude with an overall assessment: Is this story suitable as a bedtime story for children aged 5–10? Why or why not? Summarize in 2–3 sentences.
+
+    Your evaluation should be formatted clearly, with numbered headings matching the criteria above. Make it easy to parse and actionable.
+    """
+
+    def evaluate_story(self, story: str, original_user_prompt: str, story_elements: Dict, user_story_id: str) -> Dict:
         # Generate evaluation using OpenAI
         evaluation_prompt = self._get_evaluation_prompt(story, original_user_prompt, story_elements)
         response = openai.chat.completions.create(
@@ -132,16 +150,21 @@ class JudgeAgent:
             reason_val = f"Error parsing appropriateness check: {appropriateness_output_str}"
             is_appropriate_val = False
             score_val = 0
-
-        return {
+        
+        evaluation = {
             'is_appropriate': is_appropriate_val,
-            'reason': reason_val,
-            'score': score_val,
+           'reason': reason_val,
+           'score': score_val,
             'feedback': feedback,
             'full_evaluation': evaluation_text
         }
+        # Save the evaluation to the database
+        evaluation_id = self.story_db.add_evaluation(user_story_id, evaluation)
 
-    # Removed the first (red_flags based) _check_appropriateness method
+        return {
+            "evaluation": evaluation,
+            "evaluation_id": evaluation_id
+        }
 
     def _extract_feedback(self, evaluation: str) -> str:
         # Extract actionable feedback from the evaluation
@@ -185,6 +208,7 @@ class JudgeAgent:
             3. Story Structure and Completeness (Max 2 points):
                • Is the story complete with a clear beginning, middle, and end?
                • Is there a satisfying and gentle resolution?
+               • Is the story complete? The story should end completely without leaving any half-sentences.
 
         IMPORTANT (Max 3 points total for this section):
             4. Length and Pacing (Max 1.5 points):
@@ -194,18 +218,12 @@ class JudgeAgent:
                • Is the language easy to follow for children?
 
         LESS IMPORTANT (Max 1 point total for this section):
-            6. Educational and Emotional Value (Max 0.25 points)
-            7. Engagement and Imagination (Max 0.25 points)
-            8. Emotional Tone and Bedtime Suitability (Max 0.25 points)
-            9. Visual Support (optional, Max 0.15 points if applicable, otherwise 0)
-            10. Suggestions for Improvement (Max 0.1 points - this is about the quality of the evaluation's suggestions, not the story itself, so perhaps less relevant for story score. Let's re-evaluate this point. For now, let's assign points to the story's qualities)
-            
-        Revised LESS IMPORTANT (Max 1 point total for this section):
             6. Educational and Emotional Value (Max 0.3 points)
             7. Engagement and Imagination (Max 0.3 points)
             8. Emotional Tone and Bedtime Suitability (Max 0.4 points)
             (Visual Support and Suggestions for Improvement from the evaluation itself are not directly scored for the story here)
 
+        NOW IMPORTANT: If there is ANY one of the MOST IMPORTANT criteria that receives a 0 score, the story is NOT appropriate, regardless of other scores.
 
         Now analyze the evaluation below and decide:
 
@@ -223,16 +241,14 @@ class JudgeAgent:
         """
 
         try:
-            # Updated to the new OpenAI SDK syntax
             response = openai.chat.completions.create(
-                model="gpt-4", # Consider gpt-3.5-turbo for cost/speed if quality is sufficient
+                model="gpt-4",
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.2, # Lowered temperature for more deterministic output
-                max_tokens=150 # Increased max_tokens slightly for score and reason
+                temperature=0.2,
+                max_tokens=150
             )
             output = response.choices[0].message.content.strip()
             return output
         except Exception as e:
-            # Log the error for debugging
             print(f"Error calling OpenAI in _check_appropriateness: {str(e)}")
             return f"is_appropriate: ERROR\nreason: Failed to get appropriateness check due to API error: {str(e)}\nscore: 0/10"

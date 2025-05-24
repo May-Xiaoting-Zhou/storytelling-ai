@@ -20,7 +20,8 @@ CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:5173').split(',')
 
 # Story generation configuration
 ITERATION_LIMIT = int(os.getenv('ITERATION_LIMIT', 3))
-
+# Story evaluation configuration
+EVALUATION_LIMIT = int(os.getenv('EVALUATION_LIMIT', 3))
 # Validate required environment variables
 if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY environment variable is not set. Please set it in your .env file.")
