@@ -4,6 +4,39 @@ A full-stack storytelling system designed for children ages 5-10, featuring a Re
 
 ## System Architecture
 
+```mermaid
+flowchart TD
+  A[Request Reception] --> B[User Identification & Profiling]
+  B --> B1{User ID Provided?}
+  B1 -- No or guest_user --> B2[Assign User ID]
+  B1 -- Yes --> B3[Check if New User or Needs Profiling]
+  B3 -->|Needs Profiling| B4[Ask for Preferences and Log Interaction]
+  B4 --> B5[Receive Preferences]
+  B5 --> B6[Update Profile via MemoryPersonalizationAgent]
+  B6 --> B7[Prompt for Story and Log Interaction]
+  B3 -->|No Profiling Needed| C[Intent Analysis]
+  B7 --> C
+  C --> C1[Analyze Prompt and History via IntentAnalyzer]
+  C1 --> C2{Intent Type?}
+  C2 -- Not Story (e.g., Question) --> C3[Respond with Message, Log, End]
+  C2 -- New or Change Story --> D[Story Generation]
+  D --> D1[Generate Prompt for LLM via StorytellerAgent]
+  D1 --> D2[LLM Generates Story]
+  D2 --> D3[Save Story via StoryDatabase]
+  D3 --> E[Story Evaluation and Refinement Loop]
+  E --> E1[JudgeAgent Evaluates Story]
+  E1 --> E2{Score >= Threshold?}
+  E2 -- Yes --> F[Select Final Story]
+  E2 -- No --> E3[Generate Feedback via FeedbackAgent]
+  E3 --> E4[Update Story Elements via IntentAnalyzer]
+  E4 --> E5[Regenerate Story via StorytellerAgent]
+  E5 --> E1
+  F --> G[Record Summary in Profile via MemoryPersonalizationAgent]
+  G --> H[Log Conversation via ConversationManager]
+  H --> I[Send Final Response to Frontend]
+  C3 --> H
+```
+
 ### Frontend (Port: 5173)
 - React-based chatbot interface
 - Modern UI with child-friendly design
